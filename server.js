@@ -214,7 +214,27 @@ const returnToken = (user, res) => {
      console.error(error);
      res.status(500).send('Server error');
    }
- })
+ });
+
+ /**
+  * @route GET api/entries/:id
+  * @desc Get entry
+  */
+
+  app.get('/api/posts/:id', auth, async (req, res) => {
+    try {
+      const entry = await Entry.findById(req.params.id);
+
+      if (!entry) {
+        return res.status(404).json({ msg: 'Entry not found' });
+      }
+
+      res.json(entry);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send('Server error');
+    }
+  });
 
 
  
