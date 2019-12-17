@@ -70,7 +70,7 @@ class App extends React.Component {
       <Router>
         <div className="App">
           <header className="App-header">
-            <h1>Good Things</h1>
+            <h1>Nutrition Log</h1>
             <ul>
               <li>
                 <Link to="/">Home</Link>
@@ -87,7 +87,7 @@ class App extends React.Component {
             </ul>
             </header>
             <main>
-                <Route exacr path="/">
+                <Route exact path="/">
                   {user ?
                     <React.Fragment>
                       <div>Hello {user}!</div>

@@ -7,6 +7,7 @@ import User from './models/User';
 import config from 'config';
 import jwt from 'jsonwebtoken';
 import auth from './middleware/auth';
+import Entry from './models/Entry';
 
 // Initialize express application
 const app = express();
@@ -151,3 +152,69 @@ const returnToken = (user, res) => {
     }
   );
 };
+
+// Entry Endpoints
+
+/**
+ * @route POST api/entries
+ * @desc Create entry
+ */
+
+ app.post(
+   '/api/entries',
+   [
+     auth,
+     [
+      check('description', 'Please enter a valid food description.').not().isEmpty(),
+      check('servingSize', 'Please enter a number for the serving size.').isNumeric(),
+      check('unit', 'Please enter a valid unit for the serving size such as cups or grams').not().isEmpty(),
+      check('servingsPerContainer', 'Please enter the number of servings per container.').isNumeric()
+     ]
+   ],
+   async (req, res) => {
+     const errors = validationResult(req);
+     if (!errors.isEmpty()) {
+       res.status(400).json({ errors: errors.array() });
+     } else {
+        const { description, servingSize, unit, servingsPerContainer } = req.body;
+       try {
+         const user = await User.findById(req.user.id);
+
+         // Create a new Entry
+         const entry = new Entry({
+           user: user.id,
+           description: description,
+           servingSize: servingSize,
+           unit: unit,
+           servingsPerContainer: servingsPerContainer
+         });
+
+         await entry.save();
+
+         res.json(entry);
+       } catch (error) {
+         console.error(error);
+         res.status(500).send('Server error');
+       }
+     }
+   }
+ );
+ 
+/**
+ * @route GET api/entries
+ * @desc Get entries
+ */
+
+ app.get('/api/entries', auth, async (req, res) => {
+   try {
+     const entries = await Entry.find().sort({ date: -1});
+
+     res.json(entries);
+   } catch (error) {
+     console.error(error);
+     res.status(500).send('Server error');
+   }
+ })
+
+
+ 
