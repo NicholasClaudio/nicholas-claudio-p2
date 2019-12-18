@@ -3,15 +3,14 @@ import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import './styles.css';
 
-const CreateEntry = ({ onEntryCreated, token }) => {
+const EditEntry = ({ token, entry, onEntryUpdated }) => {
   let history = useHistory();
   const [entryData, setEntryData] = useState({
-    description: '',
-    servingSize: '',
-    unit: '',
-    servingsPerContainer: ''
+    description: entry.description,
+    servingSize: entry.servingSize,
+    unit: entry.unit,
+    servingsPerContainer: entry.servingsPerContainer
   });
-
   const { description, servingSize, unit, servingsPerContainer } = entryData;
 
   const onChange = e => {
@@ -19,11 +18,11 @@ const CreateEntry = ({ onEntryCreated, token }) => {
 
     setEntryData({
       ...entryData,
-      [name]: value
+      [name]:value
     });
   };
 
-  const create = async () => {
+  const update = async () => {
     if (!description || !servingSize || !unit || !servingsPerContainer ) {
       console.log('All fields are required');
     } else {
@@ -43,14 +42,13 @@ const CreateEntry = ({ onEntryCreated, token }) => {
         };
 
         const description = JSON.stringify(newEntry);
-        
-        const res = await axios.post(
-          'http://localhost:5000/api/entries',
+        const res = await axios.put(
+          `http://localhost:5000/api/entries/${entry._id}`,
           description,
           config
         );
-        
-        onEntryCreated(res.data);
+
+        onEntryUpdated(res.data);
         history.push('/');
       } catch (error) {
         console.error(`Error creating entry: ${error.response.data}`);
@@ -60,8 +58,8 @@ const CreateEntry = ({ onEntryCreated, token }) => {
 
   return (
     <div className="form-container">
-      <h2>Log new Entry</h2>
-      <input
+      <h2>Edit Entry</h2>
+      <input 
         name="description"
         type="text"
         placeholder="Description"
@@ -89,9 +87,9 @@ const CreateEntry = ({ onEntryCreated, token }) => {
         value={servingsPerContainer}
         onChange={e => onChange(e)}
       />
-      <button onClick={() => create()}>Submit</button>
+      <button onClick={() => update()}>Submit</button>
     </div>
   );
 };
 
-export default CreateEntry;
+export default EditEntry;

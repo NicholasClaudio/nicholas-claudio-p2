@@ -4,7 +4,7 @@ import slugify from 'slugify';
 import './styles.css';
 
 const EntryListItem = props => {
-  const { entry, clickEntry, deleteEntry } = props;
+  const { entry, clickEntry, deleteEntry, editEntry } = props;
   const history = useHistory();
 
   const handleClickEntry = entry => {
@@ -12,6 +12,11 @@ const EntryListItem = props => {
 
     clickEntry(entry);
     history.push(`/entries/${slug}`);
+  };
+
+  const handleEditEntry = entry => {
+    editEntry(entry);
+    history.push(`/edit-entry/${entry._id}`);
   };
 
   return (
@@ -23,6 +28,7 @@ const EntryListItem = props => {
       </div>
       <div className="entryControls">
         <button onClick={() => deleteEntry(entry)}>Delete</button>
+        <button onClick={() => handleEditEntry(entry)}>Edit</button>
       </div>
     </div>
   );
