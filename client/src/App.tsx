@@ -7,6 +7,7 @@ import Register from './components/Register/Register';
 import Login from './components/Login/Login';
 import EntryList from './components/EntryList/EntryList';
 import Entry from './components/Entry/Entry';
+import CreateEntry from './components/Entry/CreateEntry';
 
 class App extends React.Component {
   state = {
@@ -109,8 +110,16 @@ class App extends React.Component {
     }
   };
 
+  onEntryCreated = entry => {
+    const newEntries = [...this.state.entries, entry];
+
+    this.setState({
+      entries: newEntries
+    });
+  };
+
   render() {
-    let { user, entries, entry } = this.state;
+    let { user, entries, entry, token } = this.state;
     const authProps = {
       authenticateUser: this.authenticateUser
     }
@@ -125,13 +134,19 @@ class App extends React.Component {
                 <Link to="/">Home</Link>
               </li>
               <li>
-                <Link to="/register">Register</Link>
+                {user ? (
+                  <Link to="/new-entry">Add Food</Link>
+                ) : (
+                  <Link to="/register">Register</Link>
+                )}
               </li>
               <li>
-                {user ?
-                <Link to="" onClick={this.logOut}>Logout</Link> :
+                {user ? (
+                  <Link to="" onClick={this.logOut}>Logout</Link>
+                )
+                 : (
                 <Link to="/login">Login</Link>
-                }
+                 )}
               </li>
             </ul>
             </header>
@@ -153,6 +168,9 @@ class App extends React.Component {
                 </Route>
                 <Route path="/entries/:entryId">
                   <Entry entry={entry} />
+                </Route>
+                <Route path="/new-entry">
+                  <CreateEntry token={token} onEntryCreated={this.onEntryCreated}/>
                 </Route>
                   <Route        
                     exact path="/register"

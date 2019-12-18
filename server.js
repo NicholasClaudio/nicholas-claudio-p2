@@ -292,6 +292,6 @@ const returnToken = (user, res) => {
         console.error(error);
         res.status(500).send('Server error');
       }
-    })
+    });
 
  
