@@ -1,0 +1,17 @@
+.entryListItem {
+  padding: 10px;
+  border: solid 1px transparent;
+}
+
+.entryListItem:hover {
+  background-color: #eeeeee;
+  border-color: #aaaaaa;
+  cursor: pointer;
+}
+
+.entryListItem p {
+  max-width: 500px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

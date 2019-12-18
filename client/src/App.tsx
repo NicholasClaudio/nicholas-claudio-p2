@@ -5,10 +5,13 @@ import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
 import './App.css';
 import Register from './components/Register/Register';
 import Login from './components/Login/Login';
+import EntryList from './components/EntryList/EntryList';
+import Entry from './components/Entry/Entry';
 
 class App extends React.Component {
   state = {
     entries: [],
+    entry: null,
     token: null,
     user: null
   }
@@ -57,7 +60,6 @@ class App extends React.Component {
         }
       };
       
-
       axios.get('http://localhost:5000/api/entries', config)
       .then((response) => {
         this.setState({
@@ -76,8 +78,39 @@ class App extends React.Component {
     this.setState({ user: null, token: null });
   }
 
+  viewEntry = entry => {
+    console.log(`view ${entry.description}`);
+    this.setState({
+      entry: entry
+    });
+  };
+
+  deleteEntry = entry => {
+    const { token } = this.state;
+
+    if (token) {
+      const config = {
+        headers: {
+          'x-auth-token': token
+        }
+      };
+
+      axios
+        .delete(`http://localhost:5000/api/entries/${entry._id}`, config)
+        .then(response => {
+          const newEntries = this.state.entries.filter(p => p._id !== entry._id);
+          this.setState({
+            entries: [...newEntries]
+          });
+        })
+        .catch(error => {
+          console.error(`Error deleting entry: ${entry}`);
+        });
+    }
+  };
+
   render() {
-    let { user, entries } = this.state;
+    let { user, entries, entry } = this.state;
     const authProps = {
       authenticateUser: this.authenticateUser
     }
@@ -103,33 +136,31 @@ class App extends React.Component {
             </ul>
             </header>
             <main>
+            <Switch>
                 <Route exact path="/">
-                  {user ?
+                  {user ? (
                     <React.Fragment>
                       <div>Hello {user}!</div>
-                      <div>
-                        {entries.map(entry => (
-                          <div key={entry._id}>
-                            <p>Description: {entry.description}</p>
-                            <p> Serving Size: {entry.servingSize} {entry.unit} </p>
-                        <p> Servings: {entry.servingsPerContainer}</p>
-                      </div>      
-                        ))}
-                      </div>
-                    </React.Fragment> :
+                      <EntryList 
+                      entries={entries} 
+                      clickEntry={this.viewEntry}
+                      deleteEntry={this.deleteEntry}/>
+                  </React.Fragment>) : (
                     <React.Fragment>
                       Please Register or Login
                     </React.Fragment>
-                  }
+                  )}
                 </Route>
-                <Switch>
+                <Route path="/entries/:entryId">
+                  <Entry entry={entry} />
+                </Route>
                   <Route        
                     exact path="/register"
                     render={() => <Register {...authProps} />} />
                   <Route
                     exact path="/login"
                     render={() => <Login {...authProps} />} />
-                </Switch>
+            </Switch>
             </main>
           </div>
       </Router> 
