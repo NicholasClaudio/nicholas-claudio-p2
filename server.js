@@ -221,7 +221,7 @@ const returnToken = (user, res) => {
   * @desc Get entry
   */
 
-  app.get('/api/posts/:id', auth, async (req, res) => {
+  app.get('/api/entries/:id', auth, async (req, res) => {
     try {
       const entry = await Entry.findById(req.params.id);
 
@@ -236,5 +236,62 @@ const returnToken = (user, res) => {
     }
   });
 
+  /**
+   * @route DELETE api/entries/:id
+   * @desc Delete an entry
+   */
+  
+   app.delete('/api/entries/:id', auth, async (req, res) => {
+      try {
+        const entry = await Entry.findById(req.params.id);
+
+        if (!entry) {
+          return res.status(404).json({ msg: 'Entry not found'});
+        }
+        
+        if(entry.user.toString() !== req.user.id) {
+          return res.status(401).json({ msg: 'User not authorized' });
+        }
+
+        await entry.remove();
+
+        res.json({ msg: 'Entry removed' });
+      } catch (error) {
+        console.error(error);
+        res.status(500).send('Server error');
+      }
+   });
+
+   /**
+    * @route PUT api/entries/:id
+    * @desc Update an entry
+    */
+
+    app.put('/api/entries/:id', auth, async (req, res) => {
+      try {
+        const { description, servingSize, unit, servingsPerContainer } = req.body;
+        const entry = await Entry.findById(req.params.id);
+
+        if (!entry) {
+          return res.status(404).json({ msg: 'Entry not found'});
+        }
+
+        if (entry.user.toString() !== req.user.id) {
+          return res.status(401).json({ msg: 'User not authorized'})
+        }
+
+        entry.description = description || entry.description; 
+        entry.servingSize = description || entry.servingSize;
+        entry.unit = description || entry.unit;
+        entry.servingsPerContainer = description || entry.servingsPerContainer;
+
+        await entry.save();
+
+        res.json(post);
+      } catch (error) {
+        console.error(error);
+        res.status(500).send('Server error');
+      }
+    })
 
  
